@@ -3213,8 +3213,6 @@ pub mod args {
     );
     pub const BLOCK_HEIGHT: Arg<BlockHeight> = arg("block-height");
     pub const BLOCK_HEIGHT_OPT: ArgOpt<BlockHeight> = arg_opt("height");
-    pub const BLOCK_HEIGHT_FROM_OPT: ArgOpt<BlockHeight> =
-        arg_opt("from-height");
     pub const BLOCK_HEIGHT_TO_OPT: ArgOpt<BlockHeight> = arg_opt("to-height");
     pub const BRIDGE_POOL_GAS_AMOUNT: ArgDefault<token::DenominatedAmount> =
         arg_default(
@@ -3402,7 +3400,6 @@ pub mod args {
     pub const REFUND_TARGET: ArgOpt<WalletTransferTarget> =
         arg_opt("refund-target");
     pub const RELAYER: Arg<Address> = arg("relayer");
-    pub const SAFE_MODE: ArgFlag = flag("safe-mode");
     pub const SCHEME: ArgDefault<SchemeType> =
         arg_default("scheme", DefaultFn(|| SchemeType::Ed25519));
     pub const SHELL: Arg<Shell> = arg("shell");
@@ -4085,14 +4082,12 @@ pub mod args {
                 gas_price: self.gas_price,
                 eth_addr: self.eth_addr,
                 sync: self.sync,
-                safe_mode: self.safe_mode,
             }
         }
     }
 
     impl Args for RelayBridgePoolProof<CliTypes> {
         fn parse(matches: &ArgMatches) -> Self {
-            let safe_mode = SAFE_MODE.parse(matches);
             let ledger_address = LEDGER_ADDRESS.parse(matches);
             let hashes = HASH_LIST.parse(matches);
             let relayer = RELAYER.parse(matches);
@@ -4123,16 +4118,11 @@ pub mod args {
                 eth_rpc_endpoint,
                 eth_addr,
                 confirmations,
-                safe_mode,
             }
         }
 
         fn def(app: App) -> App {
             app.arg(LEDGER_ADDRESS.def().help(LEDGER_ADDRESS_ABOUT))
-                .arg(SAFE_MODE.def().help(wrap!(
-                    "Safe mode overrides keyboard interrupt signals, to \
-                     ensure Ethereum transfers aren't canceled midway through."
-                )))
                 .arg(HASH_LIST.def().help(wrap!(
                     "Whitespace separated Keccak hash list of transfers in \
                      the Bridge pool."
@@ -4268,7 +4258,6 @@ pub mod args {
                 sync: self.sync,
                 retry_dur: self.retry_dur,
                 success_dur: self.success_dur,
-                safe_mode: self.safe_mode,
             }
         }
     }
@@ -4276,7 +4265,6 @@ pub mod args {
     impl Args for ValidatorSetUpdateRelay<CliTypes> {
         fn parse(matches: &ArgMatches) -> Self {
             let ledger_address = LEDGER_ADDRESS.parse(matches);
-            let safe_mode = SAFE_MODE.parse(matches);
             let daemon = DAEMON_MODE.parse(matches);
             let epoch = EPOCH.parse(matches);
             let gas = ETH_GAS.parse(matches);
@@ -4301,16 +4289,11 @@ pub mod args {
                 eth_addr,
                 retry_dur,
                 success_dur,
-                safe_mode,
             }
         }
 
         fn def(app: App) -> App {
             app.arg(LEDGER_ADDRESS.def().help(LEDGER_ADDRESS_ABOUT))
-                .arg(SAFE_MODE.def().help(wrap!(
-                    "Safe mode overrides keyboard interrupt signals, to \
-                     ensure Ethereum transfers aren't canceled midway through."
-                )))
                 .arg(DAEMON_MODE.def().help(wrap!(
                     "Run in daemon mode, which will continuously perform \
                      validator set updates."
@@ -6587,14 +6570,12 @@ pub mod args {
     impl Args for ShieldedSync<CliTypes> {
         fn parse(matches: &ArgMatches) -> Self {
             let ledger_address = CONFIG_RPC_LEDGER_ADDRESS.parse(matches);
-            let start_query_height = BLOCK_HEIGHT_FROM_OPT.parse(matches);
             let last_query_height = BLOCK_HEIGHT_TO_OPT.parse(matches);
             let spending_keys = SPENDING_KEYS.parse(matches);
             let viewing_keys = VIEWING_KEYS.parse(matches);
             let with_indexer = WITH_INDEXER.parse(matches);
             Self {
                 ledger_address,
-                start_query_height,
                 last_query_height,
                 spending_keys,
                 viewing_keys,
@@ -6607,11 +6588,6 @@ pub mod args {
                 .arg(BLOCK_HEIGHT_TO_OPT.def().help(wrap!(
                     "Option block height to sync up to. Default is latest."
                 )))
-                .arg(
-                    BLOCK_HEIGHT_FROM_OPT
-                        .def()
-                        .help(wrap!("Option block height to sync from.")),
-                )
                 .arg(SPENDING_KEYS.def().help(wrap!(
                     "List of new spending keys with which to check note \
                      ownership. These will be added to the shielded context."
@@ -6639,7 +6615,6 @@ pub mod args {
 
             Ok(ShieldedSync {
                 ledger_address: chain_ctx.get(&self.ledger_address),
-                start_query_height: self.start_query_height,
                 last_query_height: self.last_query_height,
                 spending_keys: self
                     .spending_keys

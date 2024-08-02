@@ -2120,8 +2120,6 @@ pub struct SignTx<C: NamadaTypes = SdkTypes> {
 pub struct ShieldedSync<C: NamadaTypes = SdkTypes> {
     /// The ledger address
     pub ledger_address: C::ConfigRpcTendermintAddress,
-    /// Height to start syncing from. Defaults to the correct one.
-    pub start_query_height: Option<BlockHeight>,
     /// Height to sync up to. Defaults to most recent
     pub last_query_height: Option<BlockHeight>,
     /// Spending keys used to determine note ownership
@@ -2737,9 +2735,6 @@ pub struct RelayBridgePoolProof<C: NamadaTypes = SdkTypes> {
     /// Synchronize with the network, or exit immediately,
     /// if the Ethereum node has fallen behind.
     pub sync: bool,
-    /// Safe mode overrides keyboard interrupt signals, to ensure
-    /// Ethereum transfers aren't canceled midway through.
-    pub safe_mode: bool,
 }
 
 /// Bridge validator set arguments.
@@ -2801,9 +2796,6 @@ pub struct ValidatorSetUpdateRelay<C: NamadaTypes = SdkTypes> {
     /// The amount of time to sleep between successful
     /// daemon mode relays.
     pub success_dur: Option<StdDuration>,
-    /// Safe mode overrides keyboard interrupt signals, to ensure
-    /// Ethereum transfers aren't canceled midway through.
-    pub safe_mode: bool,
 }
 
 /// IBC shielding transfer generation arguments
